@@ -1,0 +1,4 @@
+enum MenuSection {
+  sort,
+  filter
+}
