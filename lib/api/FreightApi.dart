@@ -12,7 +12,7 @@ class FreightApi {
   final _httpClient = new HttpClient();
 
   ///
-  /// Returns the list of all genres
+  /// Returns the list of all rates
   ///
   Future<ResultData> getResultData() async {
     var response = await _getRequest(Uri.parse(baseUrl));

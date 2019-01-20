@@ -10,14 +10,16 @@ import 'package:movies_streams/models/SubFilter.dart';
 import 'package:rxdart/rxdart.dart';
 
 class MainFreightBloc implements BlocBase {
+
+
   ///
   /// Unique list of all Main Freight.
   ///
   List<MainFreightCard> mainFreightCard = List<MainFreightCard>();
 
-  List<Rate> allRates = List<Rate>();
-
   QuoteFilter quoteFilter = new QuoteFilter();
+
+
 
   // ##########  STREAMS  ##############
   ///
@@ -30,28 +32,6 @@ class MainFreightBloc implements BlocBase {
 
   Stream<List<MainFreightCard>> get outMainFreightCards =>
       mainFreightController.stream;
-
-  ///
-  /// Interface that allows to get the list of all rates.
-  ///
-  BehaviorSubject<List<Rate>> allRatesController =
-      new BehaviorSubject<List<Rate>>(seedValue: []);
-
-  Sink<List<Rate>> get inAllRates => allRatesController.sink;
-
-  Stream<List<Rate>> get outAllRates => allRatesController.stream;
-
-  ///
-  /// We also want to handle changes to the filters.
-  ///
-  BehaviorSubject<List<SubFilter>> subVendorFilterController =
-      BehaviorSubject<List<SubFilter>>();
-
-  Sink<List<SubFilter>> get inSubVendorFilters =>
-      subVendorFilterController.sink;
-
-  Stream<List<SubFilter>> get outSubVendorFilters =>
-      subVendorFilterController.stream;
 
   ///
   /// We also want to handle changes to the filters
@@ -77,8 +57,6 @@ class MainFreightBloc implements BlocBase {
 
   void dispose() {
     mainFreightController.close();
-    allRatesController.close();
-    subVendorFilterController.close();
     _filtersController.close();
   }
 
@@ -97,13 +75,13 @@ class MainFreightBloc implements BlocBase {
 
   void notifyFilterChanged() {
     // Send to whomever is interested...
-    // The new list of all favorite movies.
+    // The new filter.
     inQuoteFilters.add(quoteFilter);
   }
 
   void notifyQuotesChanged() {
     // Send to whomever is interested...
-    // The new list of all favorite movies.
+    // The new list of all quotes.
     inMainFreightCards.add(UnmodifiableListView(mainFreightCard));
   }
 
