@@ -62,18 +62,21 @@ class Rate extends Object {
     this.otherCharges = parsedJson['other_charges'];
     this.remarks = parsedJson['remarks'];
     this.resultId = parsedJson['result_id'];
-//    this.schedule = (parsedJson['schedule'] as List)
-//        .map((json) => Schedule.fromJSON(json))
-//        .toList();
+    List<dynamic> scheduleJson = parsedJson['schedule'];
+    if (scheduleJson != null) {
+      this.schedule = (scheduleJson as List)
+          .map((json) => Schedule.fromJSON(json))
+          .toList();
+    }
     this.serviceType = parsedJson['service_type'];
     this.slab = parsedJson['slab'];
     this.slabCurrency = parsedJson['slab_currency'];
     this.slabRate = parsedJson['slab_rate'];
     this.subVendor = SubVendor.fromJSON(parsedJson['sub_vendor']);
-    this.subVendorId = parsedJson['subVendorId'];
+    this.subVendorId = parsedJson['sub_vendor_id'];
     this.transitTime = parsedJson['transitTime'];
     this.vendor = Vendor.fromJSON(parsedJson['vendor']);
-    this.vendorId = parsedJson['vendorId'];
-    this.viaRoute = parsedJson['viaRoute'];
+    this.vendorId = parsedJson['vendor_id'];
+    this.viaRoute = parsedJson['via_route'];
   }
 }

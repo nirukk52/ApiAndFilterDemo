@@ -1,64 +1,34 @@
 import 'package:flutter/material.dart';
-import 'package:movies_streams/blocs/BlocProvider.dart';
-import 'package:movies_streams/blocs/MainFreightBloc.dart';
+import 'package:movies_streams/models/MainFreightCard.dart';
 import 'package:movies_streams/models/Rate.dart';
 
 class MainFreightWidget extends StatelessWidget {
   MainFreightWidget({
     Key key,
-    this.rate,
-    this.allRates,
+    @required this.mainFreightCard,
   }) : super(key: key);
 
-  final Rate rate;
-  final List<Rate> allRates;
+  final MainFreightCard mainFreightCard;
 
   @override
   Widget build(BuildContext context) {
-    final MainFreightBloc bloc = BlocProvider.of<MainFreightBloc>(context);
-    return StreamBuilder(
-      stream: bloc.outAllRates,
-      // Display as many FavoriteWidgets
-      builder: (BuildContext context, AsyncSnapshot<List<Rate>> snapshot) {
-        if (snapshot.hasData) {
-          List<Rate> l2FclRateList = snapshot.data
-              .where((rate) =>
-                  rate.legCode == "l2_fcl" &&
-                  rate.subVendorId == this.rate.subVendorId)
-              .toList();
-          List<Rate> l4FclRateList = snapshot.data
-              .where((rate) =>
-                  rate.legCode == "l4_fcl" &&
-                  rate.subVendorId == this.rate.subVendorId)
-              .toList();
-          Rate originCharge;
-          Rate destinationCharge;
-          if (l2FclRateList.length > 0) {
-            originCharge = l2FclRateList[0];
-          }
-          if (l4FclRateList.length > 0) {
-            destinationCharge = l4FclRateList[0];
-          }
-          if (originCharge == null && destinationCharge == null)
-            return this.freightNoCharge();
-          else if (originCharge == null) {
-            return this.freightDestinationCharge(destinationCharge);
-          } else if (destinationCharge == null) {
-            return this.freightOrginCharges(originCharge);
-          } else {
-            return this.freightAllCharges(originCharge, destinationCharge);
-          }
-        }
-
-        return Container();
-      },
-    );
+    if (mainFreightCard.originCharge == null &&
+        mainFreightCard.destinationCharge == null)
+      return this.freightNoCharge();
+    else if (mainFreightCard.originCharge == null) {
+      return this.freightDestinationCharge(mainFreightCard.destinationCharge);
+    } else if (mainFreightCard.destinationCharge == null) {
+      return this.freightOriginCharges(mainFreightCard.originCharge);
+    } else {
+      return this.freightAllCharges(
+          mainFreightCard.originCharge, mainFreightCard.destinationCharge);
+    }
   }
 
   Widget freightAllCharges(Rate originCharge, Rate destinationCharge) =>
       Container(
         width: double.infinity,
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.only(top: 16.0, left: 16.0, right: 16.0),
         child: Card(
           clipBehavior: Clip.antiAlias,
           elevation: 2.0,
@@ -70,65 +40,56 @@ class MainFreightWidget extends StatelessWidget {
                 ListTile(
                     contentPadding:
                         const EdgeInsets.only(top: 8.0, bottom: 8.0),
-                    title: Text(rate.subVendor.subVendorName),
-                    subtitle: Text(rate.expiry)),
+                    title: Text(
+                        mainFreightCard.mainFreight.subVendor.subVendorName,
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    subtitle: Text(mainFreightCard.mainFreight.expiry,
+                        style: TextStyle(fontStyle: FontStyle.italic))),
                 ListTile(
                     leading: new Icon(
-                      Icons.access_time,
+                      Icons.directions_boat,
                     ),
-                    title: Text(rate.legName),
-                    trailing: Text(rate.legTotalCost.toString())),
+                    title: Text(mainFreightCard.mainFreight.legName),
+                    trailing: Text(
+                        destinationCharge.legCurrency +
+                            " " +
+                            mainFreightCard.mainFreight.legTotalCost.toString(),
+                        style: TextStyle(fontWeight: FontWeight.bold))),
                 ListTile(
                   leading: new Icon(
-                    Icons.access_time,
+                    Icons.arrow_upward,
                   ),
                   title: Text(originCharge.legName),
-                  trailing: Text(originCharge.legTotalCost.toString()),
+                  trailing: Text(
+                      destinationCharge.legCurrency +
+                          " " +
+                          originCharge.legTotalCost.toString(),
+                      style: TextStyle(fontWeight: FontWeight.bold)),
                 ),
                 ListTile(
                   leading: new Icon(
-                    Icons.access_time,
+                    Icons.arrow_downward,
                   ),
                   title: Text(destinationCharge.legName),
-                  trailing: Text(destinationCharge.legTotalCost.toString()),
+                  trailing: Text(
+                      destinationCharge.legCurrency +
+                          " " +
+                          destinationCharge.legTotalCost.toString(),
+                      style: TextStyle(fontWeight: FontWeight.bold)),
                 ),
                 new Divider(),
-//                Card(
-//                  child: Column(
-//                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-//                    children: <Widget>[
-//                      ListTile(
-//                          leading: new Icon(
-//                            Icons.access_time,
-//                          ),
-//                          title: Text(rate.schedule[0].transitTime),
-//                          subtitle: Text(rate.schedule[0].viaPort)),
-//                      ListTile(
-//                          leading: new Icon(
-//                            Icons.access_time,
-//                          ),
-//                          title: Text(rate.schedule[0].departureTime),
-//                          trailing: Text("MORE")),
-//                    ],
-//                  ),
-//                ),
-                Card(
-                  elevation: 0.0,
-                  color: Colors.grey.shade300,
-                  child: ListTile(
-                    title: Text("TOTAL COST"),
-                    subtitle: Text(""),
-                  ),
-                )
+                this.schedule(),
+                this.totalCost(),
+                this.details()
               ],
             ),
           ),
         ),
       );
 
-  Widget freightOrginCharges(Rate originCharge) => Container(
+  Widget freightOriginCharges(Rate originCharge) => Container(
         width: double.infinity,
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.only(top: 16.0, left: 16.0, right: 16.0),
         child: Card(
           clipBehavior: Clip.antiAlias,
           elevation: 2.0,
@@ -140,49 +101,36 @@ class MainFreightWidget extends StatelessWidget {
                 ListTile(
                     contentPadding:
                         const EdgeInsets.only(top: 8.0, bottom: 8.0),
-                    title: Text(rate.subVendor.subVendorName),
-                    subtitle: Text(rate.expiry)),
+                    title: Text(
+                        mainFreightCard.mainFreight.subVendor.subVendorName,
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    subtitle: Text(mainFreightCard.mainFreight.expiry,
+                        style: TextStyle(fontStyle: FontStyle.italic))),
                 ListTile(
                     leading: new Icon(
-                      Icons.access_time,
+                      Icons.directions_boat,
                     ),
-                    title: Text(rate.legName),
-                    trailing: Text(rate.legTotalCost.toString())),
+                    title: Text(mainFreightCard.mainFreight.legName),
+                    trailing: Text(
+                        mainFreightCard.mainFreight.legCurrency +
+                            " " +
+                            mainFreightCard.mainFreight.legTotalCost.toString(),
+                        style: TextStyle(fontWeight: FontWeight.bold))),
                 ListTile(
                   leading: new Icon(
-                    Icons.access_time,
+                    Icons.arrow_upward,
                   ),
                   title: Text(originCharge.legName),
-                  trailing: Text(originCharge.legTotalCost.toString()),
+                  trailing: Text(
+                      originCharge.legCurrency +
+                          " " +
+                          originCharge.legTotalCost.toString(),
+                      style: TextStyle(fontWeight: FontWeight.bold)),
                 ),
                 new Divider(),
-//                Card(
-//                  child: Column(
-//                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-//                    children: <Widget>[
-//                      ListTile(
-//                          leading: new Icon(
-//                            Icons.access_time,
-//                          ),
-//                          title: Text(rate.schedule[0].transitTime),
-//                          subtitle: Text(rate.schedule[0].viaPort)),
-//                      ListTile(
-//                          leading: new Icon(
-//                            Icons.access_time,
-//                          ),
-//                          title: Text(rate.schedule[0].departureTime),
-//                          trailing: Text("MORE")),
-//                    ],
-//                  ),
-//                ),
-                Card(
-                  elevation: 0.0,
-                  color: Colors.grey.shade300,
-                  child: ListTile(
-                    title: Text("TOTAL COST"),
-                    subtitle: Text(""),
-                  ),
-                )
+                this.schedule(),
+                this.totalCost(),
+                this.details()
               ],
             ),
           ),
@@ -191,7 +139,7 @@ class MainFreightWidget extends StatelessWidget {
 
   Widget freightDestinationCharge(Rate destinationCharge) => Container(
         width: double.infinity,
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.only(top: 16.0, left: 16.0, right: 16.0),
         child: Card(
           clipBehavior: Clip.antiAlias,
           elevation: 2.0,
@@ -203,49 +151,36 @@ class MainFreightWidget extends StatelessWidget {
                 ListTile(
                     contentPadding:
                         const EdgeInsets.only(top: 8.0, bottom: 8.0),
-                    title: Text(rate.subVendor.subVendorName),
-                    subtitle: Text(rate.expiry)),
+                    title: Text(
+                        mainFreightCard.mainFreight.subVendor.subVendorName,
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    subtitle: Text(mainFreightCard.mainFreight.expiry,
+                        style: TextStyle(fontStyle: FontStyle.italic))),
                 ListTile(
                     leading: new Icon(
-                      Icons.access_time,
+                      Icons.directions_boat,
                     ),
-                    title: Text(rate.legName),
-                    trailing: Text(rate.legTotalCost.toString())),
+                    title: Text(mainFreightCard.mainFreight.legName),
+                    trailing: Text(
+                        mainFreightCard.mainFreight.legCurrency +
+                            " " +
+                            mainFreightCard.mainFreight.legTotalCost.toString(),
+                        style: TextStyle(fontWeight: FontWeight.bold))),
                 ListTile(
                   leading: new Icon(
-                    Icons.access_time,
+                    Icons.arrow_downward,
                   ),
                   title: Text(destinationCharge.legName),
-                  trailing: Text(destinationCharge.legTotalCost.toString()),
+                  trailing: Text(
+                      destinationCharge.legCurrency +
+                          " " +
+                          destinationCharge.legTotalCost.toString(),
+                      style: TextStyle(fontWeight: FontWeight.bold)),
                 ),
                 new Divider(),
-//                Card(
-//                  child: Column(
-//                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-//                    children: <Widget>[
-//                      ListTile(
-//                          leading: new Icon(
-//                            Icons.access_time,
-//                          ),
-//                          title: Text(rate.schedule[0].transitTime),
-//                          subtitle: Text(rate.schedule[0].viaPort)),
-//                      ListTile(
-//                          leading: new Icon(
-//                            Icons.access_time,
-//                          ),
-//                          title: Text(rate.schedule[0].departureTime),
-//                          trailing: Text("MORE")),
-//                    ],
-//                  ),
-//                ),
-                Card(
-                  elevation: 0.0,
-                  color: Colors.grey.shade300,
-                  child: ListTile(
-                    title: Text("TOTAL COST"),
-                    subtitle: Text(""),
-                  ),
-                )
+                this.schedule(),
+                this.totalCost(),
+                this.details()
               ],
             ),
           ),
@@ -254,7 +189,7 @@ class MainFreightWidget extends StatelessWidget {
 
   Widget freightNoCharge() => Container(
         width: double.infinity,
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.only(top: 16.0, left: 16.0, right: 16.0),
         child: Card(
           clipBehavior: Clip.antiAlias,
           elevation: 2.0,
@@ -266,46 +201,94 @@ class MainFreightWidget extends StatelessWidget {
                 ListTile(
                     contentPadding:
                         const EdgeInsets.only(top: 8.0, bottom: 8.0),
-                    title: Text(rate.subVendor.subVendorName),
-                    subtitle: Text(rate.expiry)),
+                    title: Text(
+                        mainFreightCard.mainFreight.subVendor.subVendorName,
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    subtitle: Text(mainFreightCard.mainFreight.expiry,
+                        style: TextStyle(fontStyle: FontStyle.italic))),
                 ListTile(
                     leading: new Icon(
-                      Icons.access_time,
+                      Icons.directions_boat,
                     ),
-                    title: Text(rate.legName),
-                    trailing: Text(rate.legTotalCost.toString())),
+                    title: Text(mainFreightCard.mainFreight.legName,
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    trailing: Text(
+                        mainFreightCard.mainFreight.legCurrency +
+                            " " +
+                            mainFreightCard.mainFreight.legTotalCost.toString(),
+                        style: TextStyle(fontWeight: FontWeight.bold))),
                 new Divider(),
-//                Card(
-//                  child: Column(
-//                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-//                    children: <Widget>[
-//                      ListTile(
-//                          leading: new Icon(
-//                            Icons.access_time,
-//                          ),
-//                          title: Text(rate.schedule[0].transitTime),
-//                          subtitle: Text(rate.schedule[0].viaPort)),
-//                      ListTile(
-//                          leading: new Icon(
-//                            Icons.access_time,
-//                          ),
-//                          title: Text(rate.schedule[0].departureTime),
-//                          trailing: Text("MORE")),
-//                    ],
-//                  ),
-//                ),
-                Card(
-                  elevation: 0.0,
-                  color: Colors.grey.shade300,
-                  child: ListTile(
-                    title: Text("TOTAL COST"),
-                    subtitle: Text(""),
-                  ),
-                )
+                this.schedule(),
+                this.totalCost(),
+                this.details()
               ],
             ),
           ),
         ),
       );
 
+  Widget details() => Card(
+        elevation: 0.0,
+        child: new Row(
+          children: [
+            new Expanded(
+              child: new Container(
+                child: new Text("Details"),
+                color: Colors.grey.shade600,
+              ),
+              flex: 5,
+            ),
+            new Expanded(
+              child: new Container(
+                child: new Text("Book Now"),
+                color: Colors.deepOrange.shade600,
+              ),
+              flex: 5,
+            ),
+          ],
+        ),
+      );
+
+  Widget totalCost() => Container(
+        color: Colors.grey.shade300,
+        child: ListTile(
+          title:
+              Text("TOTAL COST", style: TextStyle(fontWeight: FontWeight.bold)),
+          trailing: Text(mainFreightCard.totalCharge.toString(),
+              style: TextStyle(fontWeight: FontWeight.bold)),
+        ),
+      );
+
+  Widget schedule() => Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: <Widget>[
+          ListTile(
+              leading: new Icon(
+                Icons.threesixty,
+              ),
+              title: Text(mainFreightCard.mainFreight.schedule[0].transitTime),
+              trailing: Text(mainFreightCard.mainFreight.schedule[0].viaPort)),
+          ListTile(
+              leading: new Icon(
+                Icons.access_time,
+              ),
+              title: Text(getDateTime(
+                          mainFreightCard.mainFreight.schedule[0].departureTime)
+                      .day
+                      .toString() +
+                  "-" +
+                  getDateTime(
+                          mainFreightCard.mainFreight.schedule[0].departureTime)
+                      .month
+                      .toString() +
+                  "-" +
+                  getDateTime(
+                          mainFreightCard.mainFreight.schedule[0].departureTime)
+                      .year
+                      .toString()),
+              trailing: Text("MORE")),
+        ],
+      );
+
+  DateTime getDateTime(String stringDate) => DateTime.parse(stringDate);
 }

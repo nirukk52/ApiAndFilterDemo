@@ -6,7 +6,6 @@ import 'package:movies_streams/blocs/BlocProvider.dart';
 import 'package:movies_streams/blocs/MainFreightBloc.dart';
 import 'package:movies_streams/screen/FreightsListScreen.dart';
 import 'package:movies_streams/theme/ColorPalette.dart';
-import 'package:movies_streams/widgets/frate_widget.dart';
 
 Future<void> main() async {
 //  debugPrintRebuildDirtyWidgets = true;

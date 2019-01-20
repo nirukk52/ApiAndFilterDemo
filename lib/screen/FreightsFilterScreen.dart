@@ -28,10 +28,6 @@ class _FreightsFilterScreenState extends State<FreightsFilterScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    // As the context of not yet available at initState() level,
-    // if not yet initialized, we get the list of all genres
-    // and retrieve the currently selected one, as well as the
-    // filter parameters
     quotesBloc = BlocProvider.of<MainFreightBloc>(context);
     setState(() {});
   }

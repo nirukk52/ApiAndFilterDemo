@@ -4,9 +4,9 @@ import 'package:tuple/tuple.dart';
 
 class MainFreightCard {
   Rate mainFreight;
-  Rate orginCharge;
+  Rate originCharge;
   Rate destinationCharge;
-  Rate totalCharge;
+  double totalCharge;
 
   MainFreightCard();
 

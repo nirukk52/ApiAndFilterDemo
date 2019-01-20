@@ -1,6 +1,4 @@
 name: movies_streams
-description: Project aimed at explaining Streams and BLoC.
-author: Didier Boelens <mail@didierboelens.com>
 
 dependencies:
   flutter:

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:movies_streams/blocs/BlocProvider.dart';
 import 'package:movies_streams/blocs/MainFreightBloc.dart';
+import 'package:movies_streams/models/MainFreightCard.dart';
 import 'package:movies_streams/models/Rate.dart';
 import 'package:movies_streams/screen/FreightsFilterScreen.dart';
 import 'package:movies_streams/widgets/FilterButton.dart';
@@ -26,17 +27,16 @@ class FreightsListScreen extends StatelessWidget {
 //        builder: (BuildContext context, AsyncSnapshot<List<Rate>> allRates) {
 //          if (allRates.hasData) {
           StreamBuilder(
-        stream: bloc.outMainFreights,
+        stream: bloc.outMainFreightCards,
         // Display as many FavoriteWidgets
         builder:
-            (BuildContext context, AsyncSnapshot<List<Rate>> mainFreights) {
+            (BuildContext context, AsyncSnapshot<List<MainFreightCard>> mainFreights) {
           if (mainFreights.hasData) {
             return ListView.builder(
               itemCount: mainFreights.data.length,
               itemBuilder: (BuildContext context, int index) {
                 return MainFreightWidget(
-                  rate: mainFreights.data[index],
-                  // allRates: allRates.data,
+                  mainFreightCard: mainFreights.data[index],
                 );
               },
             );
