@@ -2,7 +2,9 @@
 
 * ### The Good.
 The followed a bloc-architecture pattern.
+
 All the display logic / filter logic is in the bloc.
+
 Maximum widgets are stateless -> Widgets change when data in the bloc changes not by managing their own states. 
 
 * ### The Bad.
