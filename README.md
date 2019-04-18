@@ -1,4 +1,4 @@
-# Repo demonstrating an API call and filtering.
+
 
 * ### The Good.
 The followed a bloc-architecture pattern.
